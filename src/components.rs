@@ -8,7 +8,7 @@ use std::fmt::Debug;
 
 
 
-const MEMORY_SIZE: usize = 100;
+const MEMORY_SIZE: usize = 30_000;
 
 
 

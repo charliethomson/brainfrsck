@@ -9,7 +9,7 @@ pub mod prelude {
     pub use crate::{
         instruction::{ Instruction, },
         components::{ Tape, Memory, IO },
-        interpreter::{ Interpreter, eval_string, eval_file, },
+        interpreter::{ Interpreter, eval_string, },
         error::BrainfuckError,
     };
 }

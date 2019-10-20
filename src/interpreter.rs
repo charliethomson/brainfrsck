@@ -7,8 +7,12 @@ use crate::{
 use std::{
     path::PathBuf,
     iter::FromIterator,
+    fmt::{ self, Debug, Display },
 };
 
+
+/// The main 'interpreter' structure.
+/// Handles interactions between the tape, memory, and IO
 pub struct Interpreter {
     // Instructions and instruction pointer
     tape: Tape,
@@ -18,23 +22,21 @@ pub struct Interpreter {
 
     // Input / Output
     io: IO,
-
-    // Jump pointers
-    // Depth increasing, pointers front to back
-    jp: Vec<usize>,
-
 } impl Interpreter {
+
+    /// Create a new Interpreter
+    /// args are self explanatory
     pub fn new(tape: Tape, input: Option<Vec<u8>>) -> Self {
         let io = if input.is_some() { IO::new(input.unwrap()) } else { IO::default() };
         Interpreter {
             tape,
             memory: Memory::new(),
             io,
-            jp: Vec::new(),
         }
     }
 
-    pub fn step(&mut self) -> Result<Option<Vec<u8>>, BrainfuckError> {
+    /// Gets the current instruction, advances the instruction pointer, handles the instructions
+    fn step(&mut self) -> Result<Option<Vec<u8>>, BrainfuckError> {
         let instruction = match self.tape.get_instruction() {
             Ok(i) => i,
             Err(_) => return Ok(Some(self.io.output())),
@@ -104,13 +106,16 @@ impl InterpreterOutput {
     pub fn to_vec(&self) -> Vec<u8> {
         self.0.clone()
     }
+} impl Debug for InterpreterOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.0)
+    }
+} impl Display for InterpreterOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.to_string())
+    }
 }
 
 pub fn eval_string(s: &'static str, input: Option<Vec<u8>>) -> Result<InterpreterOutput, BrainfuckError> {
-    let mut interpreter = Interpreter::new(Tape::from_string(s)?, input);
-    interpreter.eval()
-}
-
-pub fn eval_file(path: PathBuf,  input: Option<Vec<u8>>) -> Result<InterpreterOutput, BrainfuckError> {
-    Ok(InterpreterOutput::new(Vec::new()))
+    Interpreter::new(Tape::from_string(s)?, input).eval()
 }

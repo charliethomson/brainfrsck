@@ -4,17 +4,67 @@ use brainfrsck::error::BrainfuckError;
 fn foo_bar() -> Result<(), BrainfuckError> {
     use brainfrsck::prelude::*;
 
-    let sum = r#",>,#[[-<+>],#]#<."#;
-    eprintln!("{:?}", eval_string(sum, Some(vec![1,2,3,4,5,6]))?.to_vec());
+    let sum = r#",>,[[-<+>],]<."#;
 
-    fn sum_rs(vals: Vec<u8>) -> u8 {
-        vals.iter().fold(0, |a, x| a + *x )
-    }
+    let cell_size = r#"Calculate the value 256 and test if it's zero
+If the interpreter errors on overflow this is where it'll happen
+++++++++[>++++++++<-]>[<++++>-]
++<[>-<
+    Not zero so multiply by 256 again to get 65536
+    [>++++<-]>[<++++++++>-]<[>++++++++<-]
+    +>[>
+        # Print "32"
+        ++++++++++[>+++++<-]>+.-.[-]<
+    <[-]<->] <[>>
+        # Print "16"
+        +++++++[>+++++++<-]>.+++++.[-]<
+<<-]] >[>
+    # Print "8"
+    ++++++++[>+++++++<-]>.[-]<
+<-]<
+# Print " bit cells\n"
++++++++++++[>+++>+++++++++>+++++++++>+<<<<-]>-.>-.+++++++.+++++++++++.<.
+>>.++.+++++++..<-.>>-
+Clean up used cells.
+[[-]<]"#;
 
-    let sum_bytes: Vec<u8> = (0..15).map(|a| a as u8).collect();
+let sier = r#"++++++++[>+>++++<<-]>++>>+<[-[>>+<<-]+>>]>+[-<<<[->[+[-]+>++>>>-<<]<[<]>>++++++[<<+++++>>-]+<<++.[-]<<]>.>+[>>]>+]"#;
+let sier_result = r#"                               *
+                              * *
+                             *   *
+                            * * * *
+                           *       *
+                          * *     * *
+                         *   *   *   *
+                        * * * * * * * *
+                       *               *
+                      * *             * *
+                     *   *           *   *
+                    * * * *         * * * *
+                   *       *       *       *
+                  * *     * *     * *     * *
+                 *   *   *   *   *   *   *   *
+                * * * * * * * * * * * * * * * *
+               *                               *
+              * *                             * *
+             *   *                           *   *
+            * * * *                         * * * *
+           *       *                       *       *
+          * *     * *                     * *     * *
+         *   *   *   *                   *   *   *   *
+        * * * * * * * *                 * * * * * * * *
+       *               *               *               *
+      * *             * *             * *             * *
+     *   *           *   *           *   *           *   *
+    * * * *         * * * *         * * * *         * * * *
+   *       *       *       *       *       *       *       *
+  * *     * *     * *     * *     * *     * *     * *     * *
+ *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+"#;
 
-    assert_eq!(eval_string(sum, Some(sum_bytes.clone()))?.to_vec()[0], sum_rs(sum_bytes.clone()));
-
+assert_eq!(eval_string(sier, None)?.to_string(), sier_result);
+//    assert_eq!(eval_string(sum, Some(vec![1,2,3,4,5,6]))?.to_vec()[0], (0u8..=6).sum::<u8>());
     Ok(())
 }
 
