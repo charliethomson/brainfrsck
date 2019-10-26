@@ -1,0 +1,1 @@
+{"rustc":11662075050264400882,"features":"[]","target":14064284159029465248,"profile":8248545651247322450,"path":10872709659218687626,"deps":[["rand v0.7.2","rand",8279271776838777038]],"local":[{"MtimeBased":[[1572067984,289183394],".fingerprint/brainfrsck-a9d41ba9a9002acf/dep-test-lib-brainfrsck-a9d41ba9a9002acf"]}],"rustflags":[],"metadata":1892736150763118394}

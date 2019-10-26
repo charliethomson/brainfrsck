@@ -65,7 +65,7 @@ const FANCY_NUMBERS_BF: &'static str = r#">>>>+>+++>+++>>>>>+++[>,+>++++[>++++
 ++++++>-]<-<<[-[<+>>.<-]]<<<<[-[-[>+<-]>]>>>>>[.[>]]<<[<+>-]>>>[<<++[<+>--]>>-
 ]<<[->+<[<++>-]]<<<[<+>-]<<<<]>>+>>>--[<+>---]<.>>[[-]<<]<]"#;
 
-const FANCY_NUMBERS_1234_RESULT: &'static str = "      \
+const FANCY_NUMBERS_0123_RESULT: &'static str = "      \
       /\\
        /\\
     /\\  /
@@ -210,7 +210,7 @@ fn interpretation() -> Result<(), BrainfuckError> {
 
     // Pretty numbers 
     assert_eq!(
-        FANCY_NUMBERS_1234_RESULT
+        FANCY_NUMBERS_0123_RESULT
             .to_owned(),
         eval_string(
             FANCY_NUMBERS_BF,
@@ -225,10 +225,3 @@ fn interpretation() -> Result<(), BrainfuckError> {
     Ok(())
 }
 
-
-#[test]
-fn foo() {
-    let sum: &'static str = ",>,<[[[->+<],],].";
-
-    eprintln!("{:?}", eval_string(sum, Some((1..6).collect())).unwrap().to_vec());
-}
