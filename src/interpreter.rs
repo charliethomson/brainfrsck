@@ -1,11 +1,12 @@
 
+//! The interpreter itself and others relating to it
+
 use crate::{
     error::{ BrainfuckError, },
     instruction::{ Instruction },
     components::{ Tape, Memory, IO, },
 };
 use std::{
-    path::PathBuf,
     iter::FromIterator,
     fmt::{ self, Debug, Display },
 };
@@ -24,8 +25,6 @@ pub struct Interpreter {
     io: IO,
 } impl Interpreter {
 
-    /// Create a new Interpreter
-    /// args are self explanatory
     pub fn new(tape: Tape, input: Option<Vec<u8>>) -> Self {
         let io = if input.is_some() { IO::new(input.unwrap()) } else { IO::default() };
         Interpreter {
@@ -37,11 +36,8 @@ pub struct Interpreter {
 
     /// Gets the current instruction, advances the instruction pointer, handles the instructions
     fn step(&mut self) -> Result<Option<Vec<u8>>, BrainfuckError> {
-        let instruction = match self.tape.get_instruction() {
-            Ok(i) => i,
-            Err(_) => return Ok(Some(self.io.output())),
-        };
-        match instruction {
+
+        match self.tape.get_instruction() {
             Instruction::IncPtr => {
                 self.memory.inc_ptr()?;
             },
@@ -83,6 +79,7 @@ pub struct Interpreter {
         Ok(None)
     }
 
+    /// Evaluates the code the interpreter was given and outputs the result
     pub fn eval(&mut self) -> Result<InterpreterOutput, BrainfuckError> {
         loop {
             match self.step() {
@@ -94,28 +91,33 @@ pub struct Interpreter {
     }
 }
 
-
+/// The output type of the brainfuck interpreter
 pub struct InterpreterOutput(Vec<u8>);
 impl InterpreterOutput {
-    pub fn new(v: Vec<u8>) -> Self { InterpreterOutput(v) }
-
+    /// Output the data as a `String`
     pub fn to_string(&self) -> String {
         String::from_iter(self.0.iter().map(|byte| *byte as char))
     }
 
+    /// Output the data as a `Vec<u8>`
     pub fn to_vec(&self) -> Vec<u8> {
         self.0.clone()
     }
-} impl Debug for InterpreterOutput {
+}
+/// format the data as a `Vec<u8>`
+impl Debug for InterpreterOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self.0)
     }
-} impl Display for InterpreterOutput {
+} 
+/// format the data as a `String`
+impl Display for InterpreterOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.to_string())
     }
 }
 
-pub fn eval_string(s: &'static str, input: Option<Vec<u8>>) -> Result<InterpreterOutput, BrainfuckError> {
-    Interpreter::new(Tape::from_string(s)?, input).eval()
+/// Evaluate brainfuck code with an optional input
+pub fn eval_string(code: &'static str, input: Option<Vec<u8>>) -> Result<InterpreterOutput, BrainfuckError> {
+    Interpreter::new(Tape::from_string(code), input).eval()
 }

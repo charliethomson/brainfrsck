@@ -1,3 +1,7 @@
+
+
+//! Holds the component structs of the interpreter
+
 use crate::{
     instruction::Instruction,
     error::BrainfuckError,
@@ -8,10 +12,11 @@ use std::fmt::Debug;
 
 
 
-const MEMORY_SIZE: usize = 30_000;
+pub const MEMORY_SIZE: usize = 30_000;
 
 
 
+/// The component that handles the instructions
 #[derive(Debug)]
 pub struct Tape {
     stream: Vec<Instruction>,
@@ -27,7 +32,8 @@ pub struct Tape {
         }
     }
 
-    pub fn from_string<S: ToString>(s: S) -> Result<Self, BrainfuckError> {
+    /// Creates a `Tape` from a string of instructions
+    pub fn from_string<S: ToString>(s: S) -> Self {
 
         // TODO: This needs cleaned, is ugly <3
         let mut stream: Vec<Instruction> = s.to_string()
@@ -39,17 +45,17 @@ pub struct Tape {
             stream.push(Instruction::EOF);
         }
 
-        Ok(Self::new(stream))
+        Self::new(stream)
     }
 
-    pub fn get_instruction(&mut self) -> Result<Instruction, BrainfuckError> {
+    /// Gets the current instruction and advances the instruction pointer
+    pub fn get_instruction(&mut self) -> Instruction {
         self.ptr += 1;
-        match self.stream.get(self.ptr-1) {
-            Some(n) => Ok(*n),
-            None => Err(BrainfuckError::new("Instruction pointer seems to have lost control :( (InstPtrOOBError)"))
-        }
+        self.stream[self.ptr - 1]
     }
 
+    /// Utility function used to jump back to the corresponding SetJump instruction (`[`)
+    /// Returns Err if it does not find a matching instruction
     pub fn jump_back(&mut self) -> Result<(), BrainfuckError> {
         // Current state: self.ptr is one above the Jump instruction
 
@@ -71,9 +77,11 @@ pub struct Tape {
             }
         }
 
-        Err(BrainfuckError::new("Mismatched jump operations"))
+        Err(BrainfuckError::new("Mismatched jump operations (missing a `[`)"))
     }
 
+    /// Utility function used to jump forward to the corresponding Jump instruction (`]`)
+    /// Returns Err if it does not find a matching instruction
     pub fn jump_forward(&mut self) -> Result<(), BrainfuckError> {
 
         // We are currently on the instruction right after the SetJump, so initialise depth with 1
@@ -93,26 +101,20 @@ pub struct Tape {
             }
         }
 
-        Err(BrainfuckError::new("Mismatched jump operations"))
+        Err(BrainfuckError::new("Mismatched jump operations (missing a `]`)"))
     }
-
 } impl Default for Tape {
     fn default() -> Self {
         Self::new(Vec::new())
     }
-} impl fmt::Display for Tape {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Tape - ptr {}; stream {:?};", self.ptr, self.stream)
-    }
 }
 
-/// Component of the interpreter that handles virtual memory management (
+/// Component of the interpreter that handles virtual memory management
 pub struct Memory {
     bytes: [u8; MEMORY_SIZE],
     ptr: usize,
 } impl Memory {
 
-    /// Constructor for the Memory component
     pub fn new() -> Self {
         let bytes = [0u8; MEMORY_SIZE];
         Memory {
@@ -141,7 +143,7 @@ pub struct Memory {
     /// Attempts to increment the data pointer
     /// Returns `Err` if the data pointer would pass the end of memory if incremented
     pub fn inc_ptr(&mut self) -> Result<(), BrainfuckError> {
-        if self.ptr == MEMORY_SIZE {
+        if self.ptr == MEMORY_SIZE - 1 {
             Err(BrainfuckError::new("Attempt to increment data pointer past the end of memory"))
         } else {
             self.ptr += 1;
@@ -151,7 +153,6 @@ pub struct Memory {
 
     /// Called when the `<` instruction is encountered
     /// Attempts to decrement the data pointer
-    /// Returns `Err` if the data pointer is zero
     pub fn dec_ptr(&mut self) {
         if self.ptr != 0 {
             self.ptr -= 1;
@@ -159,20 +160,13 @@ pub struct Memory {
     }
 
     /// Called when the `+` instruction is encountered
-    /// Attempts to increment the data pointer
-    /// Returns `Err` if the data pointer would pass the end of memory if incremented
-    pub fn inc_val(&mut self) -> Result<(), BrainfuckError> {
-        if self.ptr == MEMORY_SIZE {
-            Err(BrainfuckError::new("Attempt to increment data pointer past the end of memory"))
-        } else {
-            self.bytes[self.ptr] = self.bytes[self.ptr].wrapping_add(1);
-            Ok(())
-        }
+    /// Wrapping adds the value at the data pointer
+    pub fn inc_val(&mut self) {
+        self.bytes[self.ptr] = self.bytes[self.ptr].wrapping_add(1);
     }
 
     /// Called when the `-` instruction is encountered
-    /// Attempts to decrement the data pointer
-    /// Returns `Err` if the data pointer is zero
+    /// Wrapping subtracts the value at the data pointer
     pub fn dec_val(&mut self) {
         self.bytes[self.ptr] = self.bytes[self.ptr].wrapping_sub(1);
     }
@@ -182,8 +176,8 @@ pub struct Memory {
     }
 }
 
-/// """Wrapper""" for the Memory component of the interpreter
-/// Handles the actual IO and such of the interpreter
+/// """Wrapper""" for the Memory component of the interpreter that handles the actual
+/// IO and such of the interpreter
 #[derive(Debug)]
 pub struct IO {
     input: Vec<u8>,

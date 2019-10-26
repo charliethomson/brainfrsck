@@ -1,8 +1,22 @@
 
+//! Holds support for the `Instruction` enum
 
-use crate::error::BrainfuckError;
 use std::fmt;
 
+
+/// Provides an interface for different instructions.
+/// Essentially a front end enum for this mapping: 
+/// - IncPtr  => '>'
+/// - DecPtr  => '<'
+/// - IncVal  => '+'
+/// - DecVal  => '-'
+/// - Output  => '.'
+/// - Input   => ','
+/// - SetJump => '['
+/// - Jump    => ']'
+/// - EOF     => ';'
+/// - Debug   => '#'
+/// - NOP     => Any other character
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Instruction {
     IncPtr,
@@ -17,6 +31,8 @@ pub enum Instruction {
     NOP,
     Debug,
 } impl Instruction {
+
+    /// Gets an `Instruction` from a `char`
     pub fn from_char(instruction: char) -> Self {
         match instruction {
             '>' => Instruction::IncPtr,
@@ -33,6 +49,7 @@ pub enum Instruction {
         }
     }
 
+    /// Gets a `char` from an `Instruction`
     pub fn as_char(&self) -> char {
         match self {
             Instruction::IncPtr => '>',
