@@ -8,6 +8,7 @@ description = "An easy-to-use brainfuck interpreter"
 repository = "https://www.github.com/charliethomson/brainfrsck"
 readme = "./README.md"
 keywords = ["brainfuck", "interpreter"]
+documentation = "https://www.docs.rs/brainfrsck"
 
 [dev-dependencies]
 rand = "0.7.2"
