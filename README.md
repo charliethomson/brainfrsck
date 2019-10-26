@@ -9,11 +9,13 @@ The main entry point is the `eval_string` function
 ```rust
 use brainfrsck::prelude::eval_string;
 
-let sum = r#",>,[[-<+>],]<."#;
+let hello_world = "++++++++[>++++[>++>+++>++
++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++
+.>>.<-.<.+++.------.--------.>>+.>++.";
 
 assert_eq!(
-  eval_string(sum, Some(vec![1,2,3,4,5,6]))?.to_vec()[0],
-  (0u8..=6).sum::<u8>()
+    eval_string(hello_world, None)?.to_string(),
+    "Hello World!\n".to_owned(),
 );
 
 ```
