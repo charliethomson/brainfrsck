@@ -1,4 +1,5 @@
 use brainfrsck::prelude::*;
+use rand::prelude::{Rng, thread_rng};
 
 const QUICKSORT_BF: &'static str = r#">>+>>>>>,[>+>>,]>+[--[+<<<-]<[<+>-]<[<[-
 >[<<<+>>>>+<-]<<[>>+>[->]<<[<]<-]>]>>>+<[[-]<[>+<-]<]>[[>>>]+<<<-<[<<[<<<]>>+>
@@ -77,6 +78,7 @@ const FANCY_NUMBERS_0123_RESULT: &'static str = "      \
  \\/
 ";
 
+/// Tests for the `ToBytes` trait
 #[test]
 fn to_bytes() -> Result<(), BrainfuckError> {
     assert_eq!(
@@ -113,30 +115,29 @@ fn to_bytes() -> Result<(), BrainfuckError> {
     Ok(())
 }
 
+/// Test that the correct error is returned when it should be
 #[test]
 fn errors() -> Result<(), BrainfuckError> {
     
     // makes sure it returned an error and checks if the message is correct
-    fn chk<ICantNameThisUnderscore>(res: Result<ICantNameThisUnderscore, BrainfuckError>, msg: String) -> bool {
-        res.is_err() && res.err().unwrap().msg() == msg
+    fn chk<ICantNameThisUnderscore>(res: Result<ICantNameThisUnderscore, BrainfuckError>, msg: &'static str) -> bool {
+        res.is_err() && res.err().unwrap().msg() == msg.to_owned()
     }
 
     let missing_open = eval_string("+]", None);
     let missing_close = eval_string("[", None);
     let oom = eval_string("+[+>+]", None);
 
-    assert!(chk(oom, "Attempt to increment data pointer past the end of memory".to_owned()));
-    assert!(chk(missing_open, "Mismatched jump operations (missing a `[`)".to_owned()));
-    assert!(chk(missing_close, "Mismatched jump operations (missing a `]`)".to_owned()));
+    assert!(chk(oom, "Attempt to increment data pointer past the end of memory"));
+    assert!(chk(missing_open, "Mismatched jump operations (missing a `[`)"));
+    assert!(chk(missing_close, "Mismatched jump operations (missing a `]`)"));
 
     Ok(())
 }
-
+   
+/// A quicksort implentation I found online, kinda a stress test
 #[test]
-fn interpretation() -> Result<(), BrainfuckError> {
-    use rand::prelude::{Rng, thread_rng};
-
-    // we're not looking for immaculate O(n) performance here, just gimme the answer <3
+fn quicksort() -> Result<(), BrainfuckError> {
     fn is_sorted(v: &Vec<u8>) -> bool {
         let mut s = v.clone();
         s.sort();
@@ -161,13 +162,21 @@ fn interpretation() -> Result<(), BrainfuckError> {
             )?.to_bytes()
         )
     );
+    Ok(())
+}
 
-    // Test the sierpinski triangle thing i found online
+/// Test the sierpinski triangle thing i found online
+#[test]
+fn sierpinski() -> Result<(), BrainfuckError> {
     assert_eq!(
         eval_string(SIERPINSKI_BF, None)?.to_string(),
         SIERPINSKI_RESULT,
     );
+    Ok(())
+}
 
+#[test]
+fn sum() -> Result<(), BrainfuckError> {
     fn wrapping_sum(vals: &Vec<u8>) -> u8 {
         vals.clone().iter().fold(0, |a: u8, x: &u8| a.wrapping_add(*x))
     }
@@ -196,6 +205,12 @@ fn interpretation() -> Result<(), BrainfuckError> {
         )
 
     }
+    
+    Ok(())
+}
+
+#[test]
+fn helloworld() -> Result<(), BrainfuckError> {
 
     // Hello world
     assert_eq!(
@@ -207,7 +222,11 @@ fn interpretation() -> Result<(), BrainfuckError> {
             None
         )?.to_string()
     );
+    Ok(())
+}
 
+#[test]
+fn fancynumbers() -> Result<(), BrainfuckError> {
     // Pretty numbers 
     assert_eq!(
         FANCY_NUMBERS_0123_RESULT
